@@ -297,9 +297,10 @@ export default {
     }
     .search input{
         width: 300px;
-        height: 28px;
+        height: 26px;
         background: rgba(255,255,255,0.65);
         border: none;
+        padding: 4px;
     }
     .search ul{
         margin-top: 10px;
@@ -512,6 +513,7 @@ export default {
         align-items: center;
         padding: 5px 0;
         box-shadow: 0 12px 2px -6px rgba(3,3,3,0.40);
+        padding-right: 4px;
     }
     footer .row{
         width: 240px;
@@ -526,7 +528,7 @@ export default {
         width: 100px;
         text-align: center;
         padding: 5px 0;
-        color: #000;
+        color: rgba(255,28,114,0.62);
         margin-bottom: 5px;
         border-bottom: 3px solid #ff1c72;
         letter-spacing: 2px;
