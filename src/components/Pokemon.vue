@@ -135,6 +135,12 @@ export default {
             event.key == 'ArrowUp' || event.key == 'ArrowRight' ? this.next() :
             event.key == 'ArrowDown' || event.key == 'ArrowLeft' ? this.previous() : null;
 
+
+            if (event.key == 'Escape'){
+                this.searchList = [];
+                document.getElementById('pokeSearch').value = '';
+            }
+
         },
 
         elementType: function (element) {
