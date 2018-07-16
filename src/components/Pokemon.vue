@@ -528,10 +528,11 @@ export default {
         width: 100px;
         text-align: center;
         padding: 5px 0;
-        color: rgba(255,28,114,0.62);
+        color: rgba(0,0,0,0.62);
         margin-bottom: 5px;
         border-bottom: 3px solid #ff1c72;
         letter-spacing: 2px;
+        text-shadow: 1px 1px rgba(255,6,136,0.32);
     }
     footer .btn{
         width: 50px;
