@@ -1,39 +1,89 @@
 <template>
 
-    <div class="gameboy" v-if="gameboy">
+    <div class="container">
 
-        <div class="screenFrame">
+        <footer>
 
-            <div class="screen">
+            <div class="row">
+                <label>Previous</label><label>Next</label>
+            </div>
 
-                <div class="pokemon" v-bind:style="{ backgroundImage: 'url(' + img.pokePic + ')' }">
-                    <p>{{ pokemons[position].ename }}</p>
+            <div class="row">
+
+                <div class="btn">
+                    <i class="material-icons">chevron_left</i>
                 </div>
 
-                <div class="info">
-                    <ul>
-                        <li>{{ pokemons[position].cname }} | {{ pokemons[position].jname }}</li>
-                        <li>#{{ pokemons[position].id }}</li>
-                        <li><span>Stats:</span></li>
-                        <li v-for="(stat, title) in pokemons[position].base"><label>{{ title }}</label> {{ stat }}</li>
-                        <li><span>Type:</span></li>
-                        <li v-for="type in pokemons[position].type" class="j-30">{{elementType(type)}}</li>
-                    </ul>
+                <div class="btn">
+                    <i class="material-icons">expand_less</i>
+                </div>
+
+                <div class="btn">
+                    <i class="material-icons">expand_more</i>
+                </div>
+
+                <div class="btn">
+                    <i class="material-icons">chevron_right</i>
                 </div>
 
             </div>
 
-            <h2 v-on:click="next()">{{title}}</h2>
+        </footer>
+
+        <div class="search">
+
+            <form v-on:submit.prevent.stop>
+
+                <input type="text" id="pokeSearch" placeholder="Search by Id or En-Name" v-on:submit.prevent.stop>
+
+            </form>
+
+            <ul v-if="searchList.length > 0">
+                <li v-for="poke in searchList" v-on:click="pokemonIChooseYou(poke.id)">{{poke.ename}} #{{poke.id}}</li>
+            </ul>
+        </div>
+
+        <div class="gameboy" v-if="gameboy">
+
+            <div class="screenFrame">
+
+                <div class="screen">
+
+                    <div class="pokemon" v-bind:style="{ backgroundImage: 'url(' + img.pokePic + ')' }">
+                        <p>{{ pokemons[position].ename }}</p>
+                    </div>
+
+                    <div class="info">
+                        <ul>
+                            <li>{{ pokemons[position].cname }} | {{ pokemons[position].jname }}</li>
+                            <li>#{{ pokemons[position].id }}</li>
+                            <li><span>Stats:</span></li>
+                            <li v-for="(stat, title) in pokemons[position].base"><label>{{ title }}</label> {{ stat }}</li>
+                            <li><span>Type:</span></li>
+                            <li v-for="type in pokemons[position].type" class="j-30">{{elementType(type)}}</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <h2 v-on:click="next()">{{title}}</h2>
+
+            </div>
+
+
+                <div class="pause"></div>
+                <div class="pause"></div>
+
+                <div class="btn-a"><span>A</span></div>
+                <div class="btn-b"><span>B</span></div>
+
+            <img src="../img/gamepad.svg" class="pad">
 
         </div>
 
-
-            <div class="pause"></div>
-            <div class="pause"></div>
-
-
-
     </div>
+
+
 
 
 </template>
@@ -53,7 +103,8 @@ export default {
               pokePic:''
           },
           position: 0,
-          gameboy: false
+          gameboy: false,
+          searchList: []
 
       }
     },
@@ -81,7 +132,8 @@ export default {
 
         arrowKeyMagic: function (event) {
 
-            event.key == 'ArrowUp' || event.key == 'ArrowRight' ? this.next() : this.previous();
+            event.key == 'ArrowUp' || event.key == 'ArrowRight' ? this.next() :
+            event.key == 'ArrowDown' || event.key == 'ArrowLeft' ? this.previous() : null;
 
         },
 
@@ -109,7 +161,7 @@ export default {
                     break;
 
                 case '岩石' : //Rock
-                    return "\uD83D\uDF19";
+                    return "\uD83D\uDDFB"; //"\uD83D\uDF19";
                     break;
 
                 case '虫' : //Bug
@@ -136,8 +188,8 @@ export default {
                     return "\uD83C\uDF32";
                     break;
 
-                case '电' : //
-                    return "\u2301";
+                case '电' : //Eletric
+                    return "\u26C8";
                     break;
 
                 case '超能' : //Psychic
@@ -163,14 +215,42 @@ export default {
                 default:
                     return "\uD83C\uDF7A";
 
-
-
             }
 
         },
 
         randomId: function () {
                 return Math.floor( 1 + Math.random() * (this.pokemons.length + 1 - 1) )
+        },
+
+        searchPokemon: function (keyword) {
+            let pokeList = [];
+
+            if(keyword.length > 0) {
+
+                this.pokemons.forEach((poke) => {
+                    if (poke.ename.toLowerCase().indexOf(keyword) > -1 || poke.id.toString().toLowerCase().indexOf(keyword) > -1)
+                        pokeList.push(poke);
+                });
+
+            }else
+                this.searchList = [];
+
+
+            this.searchList = pokeList;
+        },
+
+        pokemonIChooseYou: function (id) {
+            try{
+                id = parseInt(id);
+
+                if(id > 0 && id < this.pokemons.length)
+                    this.position = id - 1;
+
+                this.getImgUrl();
+            }catch (e) {
+                console.log('It\'s not a number :( ... try again!');
+            }
         }
 
     },
@@ -187,21 +267,64 @@ export default {
         this.getImgUrl();
 
         this.gameboy = true;
+
+        document.getElementById('pokeSearch').addEventListener('keyup', () =>{
+            this.searchPokemon(document.getElementById('pokeSearch').value);
+        });
     },
 
     created: function () {
-        window.addEventListener('keyup', this.arrowKeyMagic)
-    },
+        window.addEventListener('keyup', this.arrowKeyMagic);
+    }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
+    .container{
+        width: 100%;
+        height: 100%;
+    }
+
+    .search{
+        position: absolute;
+        left: 50px;
+        top: 20px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 14px;
+        padding: 10px;
+    }
+    .search input{
+        width: 300px;
+        height: 28px;
+        background: rgba(255,255,255,0.65);
+        border: none;
+    }
+    .search ul{
+        margin-top: 10px;
+        width: 300px;
+        list-style: none;
+        color: #fff;
+
+    }
+    .search ul li{
+        margin-top: 10px;
+        width: 300px;
+
+        font-size: 14px;
+        letter-spacing: 2px;
+        padding: 4px 0px;
+    }
+    .search ul li:hover{
+        cursor: pointer;
+        background: rgba(255,255,255,0.5);
+        color: #000;
+    }
 
     .gameboy{
         position: relative;
-        width: 600px;
+        width: 540px;
         height: 800px;
         background: rgba(184,184,184,1);
         background-size: 100% 100%;
@@ -216,7 +339,7 @@ export default {
     .gameboy .screenFrame{
         position: absolute;
         top: 40px;
-        left: 50px;
+        left: 20px;
         border-radius: 14px 14px 40px 14px;
         height: 450px;
         width: 500px;
@@ -306,17 +429,121 @@ export default {
 
     .gameboy .pause{
         position: absolute;
-        bottom: 70px;
+        bottom: 45px;
         height: 60px;
         width: 15px;
         background: rgba(63,63,63,1);
         border-radius: 50%;
-        left: 240px;
+        left: 200px;
         transform: rotate(90deg);
         box-shadow: 2px 0px 2px 2px rgba(0,0,0,0.55);
     }
     .gameboy .pause:nth-child(2) {
-        left: 340px;
+        left: 320px;
     }
+
+    .gameboy .btn-a{
+        position: absolute;
+        right: 40px;
+        bottom: 200px;
+        height: 60px;
+        width: 60px;
+        background: rgba(63,63,63,1);
+        border-radius: 50%;
+        box-shadow: 2px 0px 2px 2px rgba(0,0,0,0.55);
+        font-size: 20px;
+    }
+    .gameboy .btn-b{
+        position: absolute;
+
+        height: 60px;
+        width: 60px;
+        background: rgba(63,63,63,1);
+        border-radius: 50%;
+        box-shadow: 2px 0px 2px 2px rgba(0,0,0,0.55);
+        right: 130px;
+        bottom: 150px;
+    }
+    .gameboy .btn-a,.gameboy .btn-b{
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        flex-direction: column;
+        align-items:   center;
+        flex-wrap: wrap;
+        font-size: 20px;
+
+    }
+    .gameboy .btn-a span {
+        font-size: 30px;
+        font-weight: 600;
+        font-family: Arial;
+        color: rgba(255,255,255,0.09);
+    }
+    .gameboy .btn-b span{
+
+        font-size: 30px;
+        font-weight: 600;
+        font-family: Arial;
+        color: rgba(255,255,255,0.09);
+    }
+
+    .gameboy img.pad{
+        position: absolute;
+        width: 150px;
+        bottom: 130px;
+        left: 40px;
+        /*background: #3f3f3f;*/
+        filter: drop-shadow( 2px 2px  rgba(0,0,0,0.55) );
+    }
+
+    footer{
+        position: absolute;
+        bottom: 10px;
+        right: 8px;
+        background: rgba(255,255,255, 0.65);
+        width: 240px;
+        /*height: 200px;*/
+        border-radius: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 5px 0;
+        box-shadow: 0 12px 2px -6px rgba(3,3,3,0.40);
+    }
+    footer .row{
+        width: 240px;
+        border-radius: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+    }
+    footer .row label{
+        width: 100px;
+        text-align: center;
+        padding: 5px 0;
+        color: #000;
+        margin-bottom: 5px;
+        border-bottom: 3px solid #ff1c72;
+        letter-spacing: 2px;
+    }
+    footer .btn{
+        width: 50px;
+        height: 50px;
+        background: rgba(0,0,0,0.51);
+        border-radius: 15px;
+        margin-left: 4px;
+        box-shadow: 0 8px 2px -6px rgba(3,3,3,0.44);
+    }
+    footer .btn i{
+        font-size: 50px;
+        color: #fff;
+    }
+
+
 
 </style>

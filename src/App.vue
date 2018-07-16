@@ -29,8 +29,10 @@ export default {
 
     body{
         position: relative;
-      background: url("https://amazingpict.com/wp-content/uploads/2014/03/Cute-Pokemon-Yellow-Background-Desktop.jpg") 0 0 no-repeat fixed;
+      background: url("http://gipsypixel.com/wp-content/uploads/2017/11/Pokemon-Desktop-Backgrounds-All-Background-Wallpaper-For-Laptop-Hd-Images.png") 0 0 no-repeat fixed;
       background-size: 100% 100%;
+      width: 100vw;
+      height: 100vh;
 
     }
 </style>
